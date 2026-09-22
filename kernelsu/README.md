@@ -24,6 +24,8 @@ between KMIs.
 | `ksud-e1s-S921BXXSFDZE1-kdp` | Same exact E1S build | `android14-6.1` | Device-tested late-load binary embedding the E1S no-patch-text module |
 | `android14-6.1_kernelsu-samsung-kdp.ko` | `SM-S721N` `S721NKSSCDZF3`; `SM-S921B` `S921BXXSFDZF2` | `android14-6.1` | Standalone Samsung KDP/RKP/DEFEX module with target `vermagic` |
 | `ksud-samsung-android14-6.1-kdp` | Same verified 6.1 targets | `android14-6.1` | Late-load binary embedding the 6.1 module |
+| `android13-5.15.189_kernelsu-gts9fepwifi-X610XXSDEZF1.ko` | `SM-X610`, `X610XXSDEZF1` | `android13-5.15` | Exact X610 module with target `vermagic`, manual relocation, live text patching disabled for Exynos |
+| `ksud-gts9fepwifi-X610XXSDEZF1-kdp` | Same exact X610 build | `android13-5.15` | Late-load binary embedding the X610 no-patch-text module |
 | `android12-5.10_kernelsu-samsung-kdp.ko` | `SM-A155N` `A155NKSS6BYH1` | `android12-5.10` | Standalone Samsung KDP/RKP/DEFEX module built against the exact A15 kernel |
 | `ksud-samsung-android12-5.10-kdp` | `SM-A155N` `A155NKSS6BYH1` | `android12-5.10` | Late-load binary embedding the 5.10 module |
 
@@ -243,6 +245,80 @@ $env:CC_aarch64_linux_android = "$ndkBin\aarch64-linux-android35-clang.cmd"
 $env:AR_aarch64_linux_android = "$ndkBin\llvm-ar.exe"
 cargo build --release --target aarch64-linux-android -p ksud
 ```
+
+## 5.15 gts9fepwifi build
+
+The Galaxy Tab S9 FE+ `SM-X610` build `X610XXSDEZF1` runs kernel release
+`5.15.189-android13-3-33478785`. The generic `android13-5.15` late-load binary
+that serves the A54 embeds a module built for `...-33470412`. That embedded
+module cannot pass the target vermagic check on the Tab S9 FE+ kernel, so a
+matching KMI asset is required even though the KMI string is identical.
+
+The X610 module is built from v3.2.5 plus the same Samsung patch, in DDK image
+`ghcr.io/ylarod/ddk-min:android13-5.15-20260313`, with the DDK release forced to
+the exact target release:
+
+```sh
+docker run --rm -v "$PWD:/workspace" -w /workspace/kernel \
+  ghcr.io/ylarod/ddk-min:android13-5.15-20260313 bash -lc '
+    sed -i "s/^#define UTS_RELEASE .*/#define UTS_RELEASE \"5.15.189-android13-3-33478785\"/" \
+      "$KDIR/include/generated/utsrelease.h"
+    printf %s 5.15.189-android13-3-33478785 > "$KDIR/include/config/kernel.release"
+    make clean
+    make -C "$KDIR" M="$PWD" src="$PWD" \
+      CONFIG_KSU=m \
+      CONFIG_KSU_SAMSUNG_KDP=y \
+      CONFIG_KSU_SAMSUNG_RKP=y \
+      CONFIG_KSU_SAMSUNG_DEFEX=y \
+      CONFIG_KSU_SAMSUNG_NO_PATCH_TEXT=y \
+      KBUILD_MODPOST_WARN=1 CC=clang modules -j$(nproc)
+    llvm-strip -d ./kernelsu.ko
+  '
+```
+
+`CONFIG_KSU_SAMSUNG_NO_PATCH_TEXT=y` keeps KernelSU out of `stop_machine()`
+live text patching on Exynos; the syscall dispatcher falls back to the RKP
+kretprobe/kprobe path, matching the device-tested A54 build. The DDK's
+`include/linux/user_namespace.h` exposes the ucount enum as `enum ucount_type`
+on this branch, so `kernel/compat/samsung_kdp.c` must use that spelling rather
+than `enum rlimit_type`.
+
+Static audit of the stripped module against the recovered `X610XXSDEZF1`
+`vmlinux.elf`:
+
+```text
+__versions size: 0
+undefined symbols: 200
+missing from target symbol table: 0
+symbols resolved from kallsyms rather than target exports: 64
+target CRC mismatches: 0
+```
+
+The module reports:
+
+```text
+vermagic: 5.15.189-android13-3-33478785 SMP preempt mod_unload modversions aarch64
+```
+
+The published pair is:
+
+```text
+android13-5.15.189_kernelsu-gts9fepwifi-X610XXSDEZF1.ko
+size: 378928
+SHA-256: 225a524953274fcbe8bfa9add2fac45ee59d7a98e5e1771d98805d4520c12b3c
+
+ksud-gts9fepwifi-X610XXSDEZF1-kdp
+size: 3828432
+SHA-256: 598964dab7d4a100151641e6afd88da558d04a771781eca94fe78ddad935d597
+```
+
+`ksud` embeds the stripped module as
+`userspace/ksud/bin/aarch64/android13-5.15_kernelsu.ko`. The upstream ksud
+crate depends on `Kernel-SU/adb_client`, `Kernel-SU/ksu_props`, and
+`Kernel-SU/java-properties`, which are no longer publicly fetchable, so the
+5.15 late-load binary is produced by replacing the embedded KMI asset inside
+the working `android13-5.15` binary; the byte length of the embedded slice is
+unchanged.
 
 ## Rebuild the A155N 5.10 artifact
 

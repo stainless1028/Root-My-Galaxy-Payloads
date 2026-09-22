@@ -233,16 +233,16 @@
       }
     },
     {
-      "payloadId": "gts9fepwifi-X610XXSEEZG3",
+      "payloadId": "gts9fepwifi-X610XXSDEZF1",
       "displayName": "Galaxy Tab S9 FE+ Wi-Fi | Kernel 5.15.189",
       "models": ["SM-X610"],
       "kernelVersions": ["5.15.189"],
       "exploit": {
-        "url": "https://raw.githubusercontent.com/iamdumdum1234/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/artifacts/gts9fepwifi-X610XXSEEZG3/cve-2026-43499-app.so",
-        "size": 133608
+        "url": "https://raw.githubusercontent.com/iamdumdum1234/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/artifacts/gts9fepwifi-X610XXSDEZF1/cve-2026-43499-app.so",
+        "size": 133720
       },
       "kernelsu": {
-        "url": "https://raw.githubusercontent.com/iamdumdum1234/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/kernelsu/ksud-gts9fepwifi-X610XXSEEZG3-kdp",
+        "url": "https://raw.githubusercontent.com/iamdumdum1234/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/kernelsu/ksud-gts9fepwifi-X610XXSDEZF1-kdp",
         "size": 3828432
       }
     }
