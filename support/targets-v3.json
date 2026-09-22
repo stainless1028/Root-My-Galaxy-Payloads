@@ -244,6 +244,10 @@
       "kernelsu": {
         "url": "https://raw.githubusercontent.com/stainless1028/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/kernelsu/ksud-gts9fepwifi-X610XXSDEZF1-kdp",
         "size": 3828432
+      },
+      "kernelsu-next": {
+        "url": "https://raw.githubusercontent.com/stainless1028/Root-My-Galaxy-Payloads/feature/sm-x610-xsp/kernelsu/ksud-next-gts9fepwifi-X610XXSDEZF1-kdp",
+        "size": 4083520
       }
     }
   ]

@@ -26,6 +26,8 @@ between KMIs.
 | `ksud-samsung-android14-6.1-kdp` | Same verified 6.1 targets | `android14-6.1` | Late-load binary embedding the 6.1 module |
 | `android13-5.15.189_kernelsu-gts9fepwifi-X610XXSDEZF1.ko` | `SM-X610`, `X610XXSDEZF1` | `android13-5.15` | Exact X610 module with target `vermagic`, manual relocation, live text patching disabled for Exynos |
 | `ksud-gts9fepwifi-X610XXSDEZF1-kdp` | Same exact X610 build | `android13-5.15` | Late-load binary embedding the X610 no-patch-text module |
+| `android13-5.15.189_kernelsu-next-gts9fepwifi-X610XXSDEZF1.ko` | `SM-X610`, `X610XXSDEZF1` | `android13-5.15` | KernelSU-Next v3.3.0 module with target `vermagic`, manual relocation, live text patching disabled for Exynos |
+| `ksud-next-gts9fepwifi-X610XXSDEZF1-kdp` | Same exact X610 build | `android13-5.15` | Late-load binary embedding the KernelSU-Next X610 no-patch-text module |
 | `android12-5.10_kernelsu-samsung-kdp.ko` | `SM-A155N` `A155NKSS6BYH1` | `android12-5.10` | Standalone Samsung KDP/RKP/DEFEX module built against the exact A15 kernel |
 | `ksud-samsung-android12-5.10-kdp` | `SM-A155N` `A155NKSS6BYH1` | `android12-5.10` | Late-load binary embedding the 5.10 module |
 
@@ -319,6 +321,41 @@ crate depends on `Kernel-SU/adb_client`, `Kernel-SU/ksu_props`, and
 5.15 late-load binary is produced by replacing the embedded KMI asset inside
 the working `android13-5.15` binary; the byte length of the embedded slice is
 unchanged.
+
+### KernelSU-Next 5.15 pair
+
+A KernelSU-Next v3.3.0 variant of the same X610 firmware is built from
+[`patches/KernelSU-Next-v3.3.0-samsung-kdp-rkp-defex.patch`](patches/KernelSU-Next-v3.3.0-samsung-kdp-rkp-defex.patch)
+with the same DDK image and flags, then the stripped module is embedded into
+the existing `android13-5.15` KernelSU-Next late-load binary as
+`userspace/ksud/bin/aarch64/android13-5.15_kernelsu.ko`.
+
+Static audit against the recovered `X610XXSDEZF1` `vmlinux.elf`:
+
+```text
+__versions size: 0
+undefined symbols: 203
+missing from target symbol table: 0
+symbols resolved from kallsyms rather than target exports: 65
+target CRC mismatches: 0
+```
+
+The published pair is:
+
+```text
+android13-5.15.189_kernelsu-next-gts9fepwifi-X610XXSDEZF1.ko
+size: 404408
+SHA-256: 9c9b328c7907259b90c2af464f6bdf08d833aa9ba85c9bfe61b2323c572a49f2
+module version code: 33214 (v3.3.0)
+
+ksud-next-gts9fepwifi-X610XXSDEZF1-kdp
+size: 4083520
+SHA-256: 84366271493941f5b88342d1c3a9ec423f1f44f47f027c9fa20e70c4155d713f
+```
+
+KernelSU-Next uses a different manager app (`com.rifsxd.ksunext`), so the
+Root My Galaxy manager shortcut and Manager APK URL still target standard
+KernelSU; KernelSU-Next needs its own manager app.
 
 ## Rebuild the A155N 5.10 artifact
 
