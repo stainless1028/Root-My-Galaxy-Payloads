@@ -15,7 +15,7 @@
 
 /* --- kmalloc layout (mm_struct slab shape) -------------------------------- */
 #ifndef MM_STRUCT_SZ
-#define MM_STRUCT_SZ 0x3e0
+#define MM_STRUCT_SZ 0x400
 #endif
 #define KMALLOC_CGROUP_TYPE 1
 #define KMALLOC_CACHE_TYPES 3
@@ -94,11 +94,15 @@
 #define SLIDE_RB_PARENT_TYPE_RESTORE 1ULL
 
 /* --- slide kernelsnitch tuning ------------------------------------------- */
+/* Mirrors the device-tested Exynos 1380 values used by the A54 profile. */
 #define SLIDE_KSNITCH_APPENDED_FUTEXES 2048
-#define SLIDE_KSNITCH_REPEAT_MEASUREMENT 64
-#define SLIDE_KSNITCH_AVERAGE 8
+#define SLIDE_KSNITCH_REPEAT_MEASUREMENT 48
+#define SLIDE_KSNITCH_AVERAGE 4
 #define SLIDE_KSNITCH_SCREEN_REPEAT 16
 #define SLIDE_KSNITCH_SCREEN_AVERAGE 3
+#define KSNITCH_FULL_COLLISIONS 4
+#define KSNITCH_HINT_COLLISIONS 3
+#define KERNELSNITCH_COLLISION_CONFIRMATIONS 2
 
 /* --- controlled-mm bank layout ------------------------------------------- */
 #define SLIDE_BANK_SLOTS 4
@@ -111,6 +115,8 @@
 /* ---------------------------------------------------------------------------
  * Collision / reclaim tuning (device-specific)
  * ------------------------------------------------------------------------- */
+#define RECLAIM_SOCKET_PAIRS 16
+#define SKB_SENDS 128
 #define SKB_SEND_SIZE 0x8e80
 #define SKB_RECLAIM_SENDS 64
 #define SLIDE_RECLAIM_SENDS 64
